@@ -6,7 +6,7 @@ fn main() {
         let kernel_base_addr: u64 = if board.map_or(false, |x| x.contains("c910light")) {
             0xffffffe000200000
         } else {
-            0xffffffc080200000
+            0xffffffe080200000
         };
 
         let mut fout = std::fs::File::create("src/platform/riscv/kernel-vars.ld").unwrap();

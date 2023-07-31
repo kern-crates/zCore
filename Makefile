@@ -98,7 +98,7 @@ ifeq ($(LIBOS), 1)
 else
   ifeq ($(ARCH), riscv64)
     ifeq ($(PLATFORM), qemu)
-	features += board-qemu
+	features += board-qemu link-user-img
     else ifeq ($(PLATFORM), d1)
 	features += board-d1 link-user-img
     else ifeq ($(PLATFORM), fu740)

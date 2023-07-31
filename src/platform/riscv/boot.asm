@@ -9,7 +9,7 @@ _start:
 	csrw sip, zero
 
 	#关闭mmu
-	#csrw satp, zero
+	csrw satp, zero
 
 	#BSS节清零
 	la t0, sbss
@@ -53,11 +53,10 @@ init_vm:
 
 	#写satp
 	or t0, t0, t1
+	csrw satp, t0
 
 	#刷新TLB
 	sfence.vma
-
-	csrw satp, t0
 
 	#此时在虚拟内存空间，设置sp为虚拟地址
 	li t0, STACK_MAX
@@ -82,6 +81,7 @@ boot_page_table_sv39:
 
 	.quad (0 << 10) | 0xef
 	.zero 8
+	# PPN=0x80000, 标志位DAG_XWRV置1
 	.quad (0x80000 << 10) | 0xef
 
 	.zero 8 * 381

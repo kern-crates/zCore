@@ -10,12 +10,12 @@ pub static PHY_MEM_OFS: usize = consts::KERNEL_BASE - consts::PHYS_MEMORY_BASE;
 
 pub mod consts {
     cfg_if! {
-        if #[cfg(feature = "board-fu740")] {
-            pub const KERNEL_BASE: usize = 0xFFFF_FFE0_8000_0000;
-            pub const PHYS_MEMORY_BASE: usize = 0x8000_0000;
-        } else if #[cfg(feature = "board-c910light")] {
+        if #[cfg(feature = "board-c910light")] {
             pub const KERNEL_BASE: usize = 0xffffffe0_00200000;
             pub const PHYS_MEMORY_BASE: usize = 0x200000;
+        } else { // board-fu740
+            pub const KERNEL_BASE: usize = 0xFFFF_FFE0_8000_0000;
+            pub const PHYS_MEMORY_BASE: usize = 0x8000_0000;
         }
     }
     #[allow(dead_code)]
