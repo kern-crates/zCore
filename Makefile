@@ -188,8 +188,8 @@ else ifeq ($(ARCH), aarch64)
 		-m 1G \
 		-serial mon:stdio \
 		-serial file:/tmp/serial.out \
-		-bios ../ignored/target/aarch64/firmware/QEMU_EFI.fd \
-		-hda fat:rw:disk \
+		-bios ../prebuilt/firmware/aarch64/QEMU_EFI.fd \
+		-hda fat:rw:disk_aarch64 \
 		-drive file=aarch64.img,if=none,format=raw,id=x0 \
 		-device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 endif
@@ -274,9 +274,6 @@ ifeq ($(ARCH), x86_64)
 	$(sed) 's#initramfs=.*#initramfs=\\EFI\\zCore\\$(notdir $(user_img))#' $(esp)/EFI/Boot/rboot.conf
 	$(sed) 's#cmdline=.*#cmdline=$(CMDLINE)#' $(esp)/EFI/Boot/rboot.conf
 endif
-ifeq ($(ARCH), aarch64)
-	$(sed) 's#\"cmdline\":.*#\"cmdline\": \"$(CMDLINE)\",#' disk/EFI/Boot/Boot.json
-endif
 ifeq ($(PLATFORM), d1)
 	$(OBJCOPY) ../prebuilt/firmware/riscv/d1_fw_payload.elf --strip-all -O binary ./zcore_d1.bin
 	dd if=$(kernel_img) of=zcore_d1.bin bs=512 seek=2048
@@ -301,9 +298,6 @@ ifeq ($(ARCH), x86_64)
 	$(sed) 's#initramfs=.*#initramfs=\\EFI\\zCore\\$(notdir $(user_img))#' $(esp)/EFI/Boot/rboot.conf
 	$(sed) 's#cmdline=.*#cmdline=$(CMDLINE)#' $(esp)/EFI/Boot/rboot.conf
 endif
-ifeq ($(ARCH), aarch64)
-	$(sed) 's#\"cmdline\":.*#\"cmdline\": \"$(CMDLINE)\",#' disk/EFI/Boot/Boot.json
-endif
 	$(qemu) $(qemu_opts) -S -gdb tcp::15234 &
 	@sleep 1
 	$(gdb)
@@ -313,8 +307,12 @@ kernel:
 	@echo Building zCore kernel
 	SMP=$(SMP) cargo build $(build_args)
 ifeq ($(ARCH), aarch64)
-	@mkdir -p disk/EFI/Boot
-	@cp ../target/aarch64/$(MODE)/zcore disk/os
+	@mkdir -p disk_aarch64/EFI/Boot
+	@cp ../target/aarch64/$(MODE)/zcore disk_aarch64/os
+	@cp ../prebuilt/firmware/aarch64/aarch64_uefi.efi disk_aarch64/EFI/Boot/bootaa64.efi
+	@cp ../prebuilt/firmware/aarch64/Boot.json disk_aarch64/EFI/Boot/Boot.json
+	@$(sed) 's#\"cmdline\":.*#\"cmdline\": \"$(CMDLINE)\",#' disk_aarch64/EFI/Boot/Boot.json
+# wget https://github.com/Luchangcheng2333/rayboot/releases/download/2.0.0/aarch64_firmware.tar.gz -O aarch64_firmware.tar.gz
 endif
 
 .PHONY: disasm
