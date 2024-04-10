@@ -96,6 +96,11 @@ ifeq ($(LIBOS), 1)
   endif
   features += libos
 else
+
+ifeq ($(PLATFORM), qemu)
+features += board-qemu
+endif
+
   ifeq ($(ARCH), riscv64)
     ifeq ($(PLATFORM), qemu)
 	features += board-qemu link-user-img
