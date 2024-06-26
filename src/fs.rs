@@ -6,10 +6,11 @@ cfg_if! {
         #[cfg(feature = "libos")]
         pub fn rootfs() -> Arc<dyn FileSystem> {
             let  rootfs = if let Ok(dir) = std::env::var("CARGO_MANIFEST_DIR") {
-                std::path::Path::new(&dir).parent().unwrap().to_path_buf()
+                std::path::Path::new(&dir).to_path_buf()
             } else {
                 std::env::current_dir().unwrap()
             };
+            warn!("libos rootfs: {:?}", rootfs);
             rcore_fs_hostfs::HostFS::new(rootfs.join("rootfs").join("libos"))
         }
 

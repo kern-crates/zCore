@@ -17,7 +17,7 @@
   "linker-flavor": "ld.lld",
   "pre-link-args": {
     "ld.lld": [
-      "-TzCore/src/platform/riscv/linker.ld"
+      "-Tsrc/platform/riscv/linker.ld"
     ]
   },
   "max-atomic-width": 64,

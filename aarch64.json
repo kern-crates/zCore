@@ -12,7 +12,7 @@
   "relocation-model": "static",
   "pre-link-args": {
     "ld.lld": [
-      "-TzCore/src/platform/aarch64/linker.ld"
+      "-Tsrc/platform/aarch64/linker.ld"
     ]
   },
   "target-pointer-width": "64"

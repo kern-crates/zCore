@@ -65,18 +65,27 @@ board-cr1825 = ["link-user-img", "no-pci", "thead-maee"]
 # Use memory and ipi to simulate block device
 mock-disk = ["linux-object/mock-disk"]
 
+### patch dependencies, Other crates' dependencies on this crate will be overridden
+[patch."https://github.com/rcore-os/rcore-fs"]
+rcore-fs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+rcore-fs-sfs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+rcore-fs-ramfs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+rcore-fs-mountfs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+rcore-fs-devfs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+rcore-fs-hostfs = { git = "https://github.com/elliott10/rcore-fs", rev = "98cfeecb" }
+
 [dependencies]
 log = "0.4"
 cfg-if = "1.0"
 spin = "0.9.4"
 customizable-buddy = "0.0.3"
-kernel-hal = { path = "../kernel-hal", default-features = false }
-zcore-loader = { path = "../loader", default-features = false }
-zircon-object = { path = "../zircon-object" }
+kernel-hal = { git = "https://github.com/kern-crates/zcore-kernel-hal.git", rev = "b3f6cff7", default-features = false }
+zcore-loader = { git = "https://github.com/kern-crates/zcore-loader.git", rev = "9fd8c1e8", default-features = false }
+zircon-object = { git = "https://github.com/kern-crates/zcore-zircon-object.git", rev = "d8e23805" }
 lock = { git = "https://github.com/DeathWish5/kernel-sync", rev = "8486b8" }
 executor = { git = "https://github.com/DeathWish5/PreemptiveScheduler", rev = "e8cd353" }
 
-linux-object = { path = "../linux-object", optional = true }
+linux-object = { git = "https://github.com/kern-crates/zcore-linux-object.git", rev = "6f8dbd89", optional = true }
 rcore-fs = { git = "https://github.com/rcore-os/rcore-fs", rev = "1a3246b", optional = true }
 rcore-fs-sfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "1a3246b", optional = true }
 
@@ -90,7 +99,7 @@ rcore-fs-hostfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "1a3246b
 # RISC-V
 [target.'cfg(any(target_arch = "riscv32", target_arch = "riscv64"))'.dependencies]
 r0 = "1"
-riscv = "0.9"
+riscv = "0.10"
 dtb-walker = "=0.2.0-alpha.3"
 page-table = "0.0.6"
 sbi-rt = { version = "0.0.2", features = ["legacy"] }

@@ -47,7 +47,7 @@ ifeq ($(PLATFORM), libos)
   LIBOS := 1
 endif
 ifeq ($(LIBOS), 1)
-  build_path := ../target/$(MODE)
+  build_path := target/$(MODE)
   PLATFORM := libos
   ifeq ($(LINUX), 1)
     ARGS ?= /bin/busybox
@@ -55,7 +55,7 @@ ifeq ($(LIBOS), 1)
     ARGS ?= $(user_img) $(CMDLINE)
   endif
 else
-  build_path := ../target/$(ARCH)/$(MODE)
+  build_path := target/$(ARCH)/$(MODE)
 endif
 
 ################ Internal variables ################
@@ -64,7 +64,7 @@ qemu := qemu-system-$(ARCH)
 kernel_elf := $(build_path)/zcore
 kernel_img := $(build_path)/zcore.bin
 esp := $(build_path)/esp
-ovmf := ../rboot/OVMF.fd
+ovmf := rboot/OVMF.fd
 qemu_disk := $(build_path)/disk.qcow2
 
 ifeq ($(shell uname), Darwin)
@@ -184,7 +184,7 @@ else ifeq ($(ARCH), riscv64)
 		-serial mon:stdio \
 		-serial file:/tmp/serial.out \
 		-kernel $(kernel_img) \
-		-initrd $(USER_IMG) \
+		-initrd $(user_img) \
 		-append "$(CMDLINE)"
 else ifeq ($(ARCH), aarch64)
 	qemu_opts += \
@@ -193,7 +193,7 @@ else ifeq ($(ARCH), aarch64)
 		-m 1G \
 		-serial mon:stdio \
 		-serial file:/tmp/serial.out \
-		-bios ../prebuilt/firmware/aarch64/QEMU_EFI.fd \
+		-bios prebuilt/firmware/aarch64/QEMU_EFI.fd \
 		-hda fat:rw:disk_aarch64 \
 		-drive file=aarch64.img,if=none,format=raw,id=x0 \
 		-device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
@@ -253,10 +253,10 @@ test:
 debug: build
 	gdb --args $(kernel_elf) $(ARGS)
 else
-build: $(kernel_img)
+build: image $(kernel_img)
 ifeq ($(PLATFORM), fu740)
 	gzip -9 -cvf $(build_path)/zcore.bin > ./zcore.bin.gz
-	mkimage -f ../prebuilt/firmware/riscv/fu740_fdt.its ./zcore-fu740.itb
+	mkimage -f prebuilt/firmware/riscv/fu740_fdt.its ./zcore-fu740.itb
 	@echo 'Build zcore-fu740.itb FIT-uImage done'
 else ifeq ($(PLATFORM), c910light)
 	mkimage -A riscv -O linux -C none -T kernel -a 0x200000 -e 0x200000 \
@@ -264,7 +264,7 @@ else ifeq ($(PLATFORM), c910light)
 		-d $(build_path)/zcore.bin uImageC910
 else ifeq ($(PLATFORM), cv1811)
 	cp $(build_path)/zcore.bin ./
-	mkimage -f ../prebuilt/firmware/riscv/cr1825_multi.its ./zcore-cv1811.itb
+	mkimage -f prebuilt/firmware/riscv/cr1825_multi.its ./zcore-cv1811.itb
 	cp ./zcore-cv1811.itb /srv/tftp/
 	sync
 	@echo 'Build zcore-cv1811.itb FIT-uImage done'
@@ -280,7 +280,7 @@ ifeq ($(ARCH), x86_64)
 	$(sed) 's#cmdline=.*#cmdline=$(CMDLINE)#' $(esp)/EFI/Boot/rboot.conf
 endif
 ifeq ($(PLATFORM), d1)
-	$(OBJCOPY) ../prebuilt/firmware/riscv/d1_fw_payload.elf --strip-all -O binary ./zcore_d1.bin
+	$(OBJCOPY) prebuilt/firmware/riscv/d1_fw_payload.elf --strip-all -O binary ./zcore_d1.bin
 	dd if=$(kernel_img) of=zcore_d1.bin bs=512 seek=2048
 	xfel ddr ddr3
 	xfel write 0x40000000 zcore_d1.bin
@@ -313,9 +313,9 @@ kernel:
 	SMP=$(SMP) cargo build $(build_args)
 ifeq ($(ARCH), aarch64)
 	@mkdir -p disk_aarch64/EFI/Boot
-	@cp ../target/aarch64/$(MODE)/zcore disk_aarch64/os
-	@cp ../prebuilt/firmware/aarch64/aarch64_uefi.efi disk_aarch64/EFI/Boot/bootaa64.efi
-	@cp ../prebuilt/firmware/aarch64/Boot.json disk_aarch64/EFI/Boot/Boot.json
+	@cp target/aarch64/$(MODE)/zcore disk_aarch64/os
+	@cp prebuilt/firmware/aarch64/aarch64_uefi.efi disk_aarch64/EFI/Boot/bootaa64.efi
+	@cp prebuilt/firmware/aarch64/Boot.json disk_aarch64/EFI/Boot/Boot.json
 	@$(sed) 's#\"cmdline\":.*#\"cmdline\": \"$(CMDLINE)\",#' disk_aarch64/EFI/Boot/Boot.json
 # wget https://github.com/Luchangcheng2333/rayboot/releases/download/2.0.0/aarch64_firmware.tar.gz -O aarch64_firmware.tar.gz
 endif
@@ -335,12 +335,14 @@ clippy:
 .PHONY: clean
 clean:
 	cargo clean
-	@rm -rf disk
+	@rm -rf rootfs
+	@rm -rf disk disk_aarch64
 
 .PHONY: bootloader
 bootloader:
 ifeq ($(ARCH), x86_64)
-	@cd ../rboot && make build
+	@[ -d rboot ] || git clone https://github.com/kern-crates/rboot.git
+	@cd rboot && make build
 endif
 
 $(kernel_img): kernel bootloader
@@ -349,7 +351,7 @@ ifeq ($(ARCH), x86_64)
 	make -C ../zircon-user
   endif
 	mkdir -p $(esp)/EFI/zCore $(esp)/EFI/Boot
-	cp ../rboot/target/x86_64-unknown-uefi/release/rboot.efi $(esp)/EFI/Boot/BootX64.efi
+	cp rboot/target/x86_64-unknown-uefi/$(MODE)/rboot.efi $(esp)/EFI/Boot/BootX64.efi
 	cp rboot.conf $(esp)/EFI/Boot/rboot.conf
 	cp $(kernel_elf) $(esp)/EFI/zCore/zcore.elf
 	cp $(user_img) $(esp)/EFI/zCore/
@@ -357,8 +359,8 @@ else ifeq ($(ARCH), riscv64)
 	$(OBJCOPY) $(kernel_elf) --strip-all -O binary $@
 endif
 
-.PHONY: image
-image:
+.PHONY: image rootfs
+image-macos:
 # for macOS only
 	hdiutil create -fs fat32 -ov -volname EFI -format UDTO -srcfolder $(esp) $(build_path)/zcore.cdr
 	qemu-img convert -f raw $(build_path)/zcore.cdr -O qcow2 $(build_path)/zcore.qcow2
@@ -371,7 +373,7 @@ VMDISK := $(build_path)/boot.vdi
 vbox: build
 ifneq "$(VMDISK)" "$(wildcard $(VMDISK))"
 	vboxmanage createvm --name zCoreVM --basefolder $(build_path) --register
-	cp ../prebuilt/zircon/empty.vdi $(VMDISK)
+	cp prebuilt/zircon/empty.vdi $(VMDISK)
 	vboxmanage storagectl zCoreVM --name DiskCtrlr --controller IntelAhci --add sata
 	vboxmanage storageattach zCoreVM --storagectl DiskCtrlr --port 0 --type hdd --medium $(VMDISK)
 	vboxmanage modifyvm zCoreVM --memory 1024 --firmware efi
@@ -394,4 +396,43 @@ ifeq ($(ARCH), riscv64)
 	@qemu-img resize $@ +5M
 else
 	@qemu-img create -f qcow2 $@ 100M
+endif
+
+rootfs:
+ifeq ($(ARCH), riscv64)
+	@mkdir -p rootfs/$(ARCH)/bin
+	@ln -sf busybox rootfs/$(ARCH)/bin/ls
+	@[ -e rootfs/$(ARCH)/bin/busybox ] || \
+		wget https://github.com/rcore-os/busybox-prebuilts/raw/master/busybox-1.30.1-riscv64/busybox -O rootfs/$(ARCH)/bin/busybox
+
+else ifeq ($(ARCH), x86_64)
+	@mkdir -p rootfs/$(ARCH)
+	@[ -e rootfs/alpine-minirootfs-3.12.0-x86_64.tar.gz ] || \
+		wget http://dl-cdn.alpinelinux.org/alpine/v3.12/releases/x86_64/alpine-minirootfs-3.12.0-x86_64.tar.gz -O rootfs/alpine-minirootfs-3.12.0-x86_64.tar.gz
+	@[ -e rootfs/$(ARCH)/bin/busybox ] || tar xf rootfs/alpine-minirootfs-3.12.0-x86_64.tar.gz -C rootfs/$(ARCH)
+	@[ -e rootfs/libos/bin/busybox ] || cp -rf rootfs/$(ARCH) rootfs/libos
+# libc-libos.so (convert syscall to function call) is from https://github.com/rcore-os/musl/tree/rcore
+	@cp prebuilt/linux/libc-libos.so rootfs/libos/lib/ld-musl-x86_64.so.1
+
+else ifeq ($(ARCH), aarch64)
+	@[ -e rootfs/testsuits-aarch64-linux-musl.tgz ] || \
+		wget https://github.com/rcore-os/testsuits-for-oskernel/releases/download/final-20240222/testsuits-aarch64-linux-musl.tgz -O rootfs/testsuits-aarch64-linux-musl.tgz
+	@[ -e rootfs/$(ARCH)/busybox ] || tar xf rootfs/testsuits-aarch64-linux-musl.tgz  -C rootfs/
+	@[ -e rootfs/$(ARCH)/busybox ] || mv rootfs/testsuits-aarch64-linux-musl rootfs/$(ARCH)
+	@ln -sf busybox rootfs/$(ARCH)/bin/ls
+	@cp rootfs/$(ARCH)/busybox rootfs/$(ARCH)/bin/
+endif
+
+rcore_fs_fuse_revision := 98cfeec
+rcore-fs-fuse:
+ifneq ($(shell rcore-fs-fuse dir image git-version), $(rcore_fs_fuse_revision))
+	@echo Installing rcore-fs-fuse
+	@cd ~ && cargo install rcore-fs-fuse --git https://github.com/elliott10/rcore-fs --rev $(rcore_fs_fuse_revision) --force
+endif
+
+image: rcore-fs-fuse rootfs
+ifneq ($(filter $(ARCH),riscv64 aarch64 x86_64),)
+	@echo Creating $(ARCH).img
+	@rcore-fs-fuse $(ARCH).img rootfs/$(ARCH) zip
+	@qemu-img resize -f raw $(ARCH).img +200K
 endif
