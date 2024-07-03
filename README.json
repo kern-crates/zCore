@@ -1,0 +1,15 @@
+{
+  "name": "zcore",
+  "description": "zCore Reimplement Zircon microkernel in safe Rust as a userspace program!",
+  "authors": [{
+    "name": "Runji Wang",
+    "email": "wangrunji0408@163.com"
+  }, {
+    "name": "Luoyuan Xiao",
+    "email": "xiaoluoyuan@163.com"
+  }],
+  "keywords": ["zcore", "zircon", "linux", "libos"],
+  "repo": "kern-crates/zCore",
+  "test_repos": ["https://github.com/kern-crates/zCore.git"],
+  "doc_url": "https://github.com/kern-crates/zCore/blob/main/README.md"
+}
