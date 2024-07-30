@@ -38,6 +38,31 @@ cfg_if! {
         }
     } else if #[cfg(feature = "zircon")] {
 
+#[macro_export]
+macro_rules! boot_library {
+    ($name: expr) => {{
+        cfg_if::cfg_if! {
+            if #[cfg(target_arch = "x86_64")] {
+                boot_library!($name, "../prebuilt/zircon/x64")
+            } else if #[cfg(target_arch = "aarch64")] {
+                boot_library!($name, "../prebuilt/zircon/arm64")
+            } else {
+                compile_error!("Unsupported architecture for zircon mode!")
+            }
+        }
+    }};
+    ($name: expr, $base_dir: expr) => {{
+        #[cfg(feature = "libos")]
+        {
+            include_bytes!(concat!($base_dir, "/", $name, "-libos.so"))
+        }
+        #[cfg(not(feature = "libos"))]
+        {
+            include_bytes!(concat!($base_dir, "/", $name, ".so"))
+        }
+    }};
+}
+
         #[cfg(feature = "libos")]
         pub fn zbi() -> impl AsRef<[u8]> {
             let path = std::env::args().nth(1).unwrap();

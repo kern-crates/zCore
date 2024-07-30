@@ -40,7 +40,7 @@ ifeq ($(LINUX), 1)
 else ifeq ($(USER), 1)
   user_img := ../zircon-user/target/zcore-user.zbi
 else
-  user_img := ../prebuilt/zircon/x64/$(ZBI).zbi
+  user_img := prebuilt/zircon/x64/$(ZBI).zbi
 endif
 
 ifeq ($(PLATFORM), libos)
@@ -88,6 +88,13 @@ ifeq ($(LINUX), 1)
   features := linux
 else
   features := zircon
+
+#ifeq ($(ARCH), x86_64)
+#export ZIRCON_PREBUILT=$(realpath prebuilt/zircon/x64 )
+#else ifeq ($(ARCH), aarch64)
+#export ZIRCON_PREBUILT=$(realpath prebuilt/zircon/arm64 )
+#endif
+
 endif
 
 ifeq ($(LIBOS), 1)
@@ -95,11 +102,11 @@ ifeq ($(LIBOS), 1)
     $(error "ARCH" must be "$(shell uname -m)" for libos mode)
   endif
   features += libos
-else
 
-ifeq ($(PLATFORM), qemu)
-features += board-qemu
-endif
+else
+  ifeq ($(PLATFORM), qemu)
+	features += board-qemu
+  endif
 
   ifeq ($(ARCH), riscv64)
     ifeq ($(PLATFORM), qemu)
@@ -253,7 +260,7 @@ test:
 debug: build
 	gdb --args $(kernel_elf) $(ARGS)
 else
-build: image $(kernel_img)
+build: $(kernel_img)
 ifeq ($(PLATFORM), fu740)
 	gzip -9 -cvf $(build_path)/zcore.bin > ./zcore.bin.gz
 	mkimage -f prebuilt/firmware/riscv/fu740_fdt.its ./zcore-fu740.itb
@@ -398,12 +405,25 @@ else
 	@qemu-img create -f qcow2 $@ 100M
 endif
 
+TEST_PATH := $(wildcard linux-syscall/test/*.c)
+BASENAMES := $(notdir  $(basename $(TEST_PATH)))
+CFLAG := -Wl,--dynamic-linker=/lib/ld-musl-x86_64.so.1
+
+RISCV64_ROOTFS_URL := https://github.com/rcore-os/libc-test-prebuilt/releases/download/0.1/prebuild.tar.xz
+
 rootfs:
 ifeq ($(ARCH), riscv64)
-	@mkdir -p rootfs/$(ARCH)/bin
-	@ln -sf busybox rootfs/$(ARCH)/bin/ls
+	@mkdir -p rootfs/
+	@rm -rf rootfs/$(ARCH)
+	@[ -e rootfs/riscv64-libc-test_prebuild.tar.xz ] || \
+		wget $(RISCV64_ROOTFS_URL) -O rootfs/riscv64-libc-test_prebuild.tar.xz
+	@tar xf rootfs/riscv64-libc-test_prebuild.tar.xz -C rootfs/ && mv rootfs/prebuild rootfs/$(ARCH)
+	@mv rootfs/riscv64/libc-test rootfs/riscv64/src; mkdir rootfs/riscv64/libc-test; mv rootfs/riscv64/src rootfs/riscv64/libc-test/
+
 	@[ -e rootfs/$(ARCH)/bin/busybox ] || \
 		wget https://github.com/rcore-os/busybox-prebuilts/raw/master/busybox-1.30.1-riscv64/busybox -O rootfs/$(ARCH)/bin/busybox
+
+	@ln -sf busybox rootfs/$(ARCH)/bin/ls
 
 else ifeq ($(ARCH), x86_64)
 	@mkdir -p rootfs/$(ARCH)
@@ -413,12 +433,13 @@ else ifeq ($(ARCH), x86_64)
 	@[ -e rootfs/libos/bin/busybox ] || cp -rf rootfs/$(ARCH) rootfs/libos
 # libc-libos.so (convert syscall to function call) is from https://github.com/rcore-os/musl/tree/rcore
 	@cp prebuilt/linux/libc-libos.so rootfs/libos/lib/ld-musl-x86_64.so.1
+	@for VAR in $(BASENAMES); do gcc linux-syscall/test/$$VAR.c -o rootfs/libos/bin/$$VAR $(CFLAG); done
 
 else ifeq ($(ARCH), aarch64)
+	@rm -rf rootfs/$(ARCH)
 	@[ -e rootfs/testsuits-aarch64-linux-musl.tgz ] || \
 		wget https://github.com/rcore-os/testsuits-for-oskernel/releases/download/final-20240222/testsuits-aarch64-linux-musl.tgz -O rootfs/testsuits-aarch64-linux-musl.tgz
-	@[ -e rootfs/$(ARCH)/busybox ] || tar xf rootfs/testsuits-aarch64-linux-musl.tgz  -C rootfs/
-	@[ -e rootfs/$(ARCH)/busybox ] || mv rootfs/testsuits-aarch64-linux-musl rootfs/$(ARCH)
+	@tar xf rootfs/testsuits-aarch64-linux-musl.tgz  -C rootfs/ && mv rootfs/testsuits-aarch64-linux-musl rootfs/$(ARCH)
 	@ln -sf busybox rootfs/$(ARCH)/bin/ls
 	@cp rootfs/$(ARCH)/busybox rootfs/$(ARCH)/bin/
 endif
