@@ -25,7 +25,7 @@ Environments：
 Clone repo and pull prebuilt fuchsia images:
 
 ```sh
-git clone https://github.com/kern-crates/zCore.git
+git clone --recursive https://github.com/kern-crates/zCore.git
 cd zCore
 ```
 Use docker container as standand develop environment, please refer to [scripts/docker](https://github.com/kern-crates/zCore/tree/main/scripts/docker).
@@ -96,7 +96,7 @@ make run LINUX=1 ARCH=aarch64 PLATFORM=qemu LOG=warn
 - step 1: Prepare Alpine Linux rootfs:
 
   ```sh
-  make rootfs
+  make rootfs ARCH=[x86_64|riscv64|aarch64]
   ```
 
 - step 2: Create Linux rootfs image:
@@ -104,7 +104,7 @@ make run LINUX=1 ARCH=aarch64 PLATFORM=qemu LOG=warn
   Note: Before below step, you can add some special apps in zCore/rootfs
 
   ```sh
-  make image
+  make image ARCH=[x86_64|riscv64|aarch64]
   ```
 
 - step 3: Build and run zcore in  linux-bare-metal mode:
@@ -125,7 +125,7 @@ make run LINUX=1 ARCH=aarch64 PLATFORM=qemu LOG=warn
 
   ```sh
   # See template in zircon-user
-  cd zircon-user && make zbi MODE=release
+  cd zcore-zircon-user && make zbi MODE=release
   
   # Run your programs in zCore
   make run MODE=release USER=1 [LOG=warn] [GRAPHIC=on] [ACCEL=1]
@@ -140,16 +140,7 @@ make run LINUX=1 ARCH=aarch64 PLATFORM=qemu LOG=warn
 Run Zircon official core-tests:
 
 ```sh
-pip3 install pexpect
-cd scripts && python3 unix-core-testone.py 'Channel.*'
-```
-
-Run all (non-panicked) core-tests for CI:
-
-```sh
-pip3 install pexpect
-cd scripts && python3 unix-core-tests.py
-# Check `zircon/test-result.txt` for results.
+cd zcore-tests && make zircon-core-test-libos
 ```
 
 #### Linux related
@@ -157,9 +148,8 @@ cd scripts && python3 unix-core-tests.py
 Run Linux musl libc-tests for CI:
 
 ```sh
-make rootfs && make libc-test
-cd scripts && python3 libos-libc-tests.py
-# Check `linux/test-result.txt` for results.
+cd zcore-tests && make linux-libc-test-libos
+# Check `zcore-tests/linux_libc_test_x86_64_libos.log` for results.
 ```
 
 ### Bare-metal Mode Testing
@@ -169,51 +159,25 @@ cd scripts && python3 libos-libc-tests.py
 Run Zircon official core-tests on bare-metal:
 
 ```sh
-cd zCore && make test MODE=release [ACCEL=1] TEST_FILTER='Channel.*'
+cd zcore-tests && make zircon-core-test
 ```
 
-Run all (non-panicked) core-tests for CI:
-
-```sh
-pip3 install pexpect
-cd scripts && python3 core-tests.py
-# Check `zircon/test-result.txt` for results.
-```
-
-#### x86-64 Linux related
+#### Linux related
 
 Run Linux musl libc-tests for CI:
 
 ```sh
-##  Prepare rootfs with libc-test apps
-make baremetal-test-img
-## Build zCore kernel
-cd zCore && make build MODE=release LINUX=1 ARCH=x86_64
-## Testing
-cd scripts && python3 baremetal-libc-test.py
-##
+cd zcore-tests && make linux-libc-test-baremetal ARCH=[x86_64|riscv64|aarch64]
 ```
 
-You can use [`scripts/baremetal-libc-test-ones.py`](./scripts/baremetal-libc-test-ones.py) & [`scripts/linux/baremetal-test-ones.txt`](./scripts/linux/baremetal-test-ones.txt) to test specified apps.
-
-[`scripts/linux/baremetal-test-fail.txt`](./scripts/linux/baremetal-test-fail.txt) includes all failed x86-64 apps (We need YOUR HELP to fix bugs!)
-
-#### riscv-64 Linux related
-
-Run Linux musl libc-tests for CI:
-
+Run Linux other tests (eg: busybox):
 ```sh
-##  Prepare rootfs with libc-test & oscomp apps
-make riscv-image
-## Build zCore kernel & Testing
-cd scripts && python3 baremetal-test-riscv64.py
-##
+cd zcore-tests && make linux-other-test-baremetal ARCH=[x86_64|riscv64|aarch64]
 ```
 
-You can use[scripts/baremetal-libc-test-ones-riscv64.py](./scripts/baremetal-libc-test-ones-riscv64.py) & [`scripts/linux/baremetal-test-ones-rv64.txt`](scripts/linux/baremetal-test-ones-rv64.txt)to test
-specified apps.
+You can use `zcore-tests/linux_libc_test*.py -t app` & `zcore-tests/testcases/linux_libc_test/*.txt` to test specified apps.
 
-[`scripts/linux/baremetal-test-fail-riscv64.txt`](./scripts/linux/baremetal-test-fail-riscv64.txt)includes all failed riscv-64 apps (We need YOUR HELP to fix bugs!)
+`zcore-tests/testcases/*_test/*.txt` includes all `FAILED` apps (We need YOUR HELP to fix bugs!)
 
 ## Graph/Game
 
