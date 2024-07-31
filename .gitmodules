@@ -1,0 +1,6 @@
+[submodule "rboot"]
+	path = rboot
+	url = https://github.com/kern-crates/rboot.git
+[submodule "zcore-tests"]
+	path = zcore-tests
+	url = https://github.com/kern-crates/zcore-tests.git

@@ -79,13 +79,13 @@ log = "0.4"
 cfg-if = "1.0"
 spin = "0.9.4"
 customizable-buddy = "0.0.3"
-kernel-hal = { git = "https://github.com/kern-crates/zcore-kernel-hal.git", rev = "b3f6cff7", default-features = false }
-zcore-loader = { git = "https://github.com/kern-crates/zcore-loader.git", rev = "9fd8c1e8", default-features = false }
-zircon-object = { git = "https://github.com/kern-crates/zcore-zircon-object.git", rev = "d8e23805" }
+kernel-hal = { git = "https://github.com/kern-crates/zcore-kernel-hal.git", rev = "eae409f2", default-features = false }
+zcore-loader = { git = "https://github.com/kern-crates/zcore-loader.git", rev = "e9cfa35b", default-features = false }
+zircon-object = { git = "https://github.com/kern-crates/zcore-zircon-object.git", rev = "178cc554" }
 lock = { git = "https://github.com/DeathWish5/kernel-sync", rev = "8486b8" }
 executor = { git = "https://github.com/DeathWish5/PreemptiveScheduler", rev = "e8cd353" }
 
-linux-object = { git = "https://github.com/kern-crates/zcore-linux-object.git", rev = "6f8dbd89", optional = true }
+linux-object = { git = "https://github.com/kern-crates/zcore-linux-object.git", rev = "1304b7e1", optional = true }
 rcore-fs = { git = "https://github.com/rcore-os/rcore-fs", rev = "1a3246b", optional = true }
 rcore-fs-sfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "1a3246b", optional = true }
 
