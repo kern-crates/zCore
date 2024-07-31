@@ -4,3 +4,6 @@
 [submodule "zcore-tests"]
 	path = zcore-tests
 	url = https://github.com/kern-crates/zcore-tests.git
+[submodule "zcore-zircon-user"]
+	path = zcore-zircon-user
+	url = https://github.com/kern-crates/zcore-zircon-user.git

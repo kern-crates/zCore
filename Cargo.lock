@@ -770,7 +770,7 @@ dependencies = [
 [[package]]
 name = "kernel-hal"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-kernel-hal.git?rev=b3f6cff7#b3f6cff7bcb1a843c43f412b62e4309ed0ac4960"
+source = "git+https://github.com/kern-crates/zcore-kernel-hal.git?rev=eae409f2#eae409f2ebae131285194149ce2a5d95a1598a89"
 dependencies = [
  "async-std",
  "bitflags 1.3.2",
@@ -828,7 +828,7 @@ checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
 [[package]]
 name = "linux-object"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-linux-object.git?rev=6f8dbd89#6f8dbd899c36a781895e92f9d36f61800ba3eb03"
+source = "git+https://github.com/kern-crates/zcore-linux-object.git?rev=1304b7e1#1304b7e11ce56156506d23459fdc1e2a0badb09c"
 dependencies = [
  "async-trait",
  "bitflags 1.3.2",
@@ -866,7 +866,7 @@ checksum = "78b3ae25bc7c8c38cec158d1f2757ee79e9b3740fbc7ccf0e59e4b08d793fa89"
 [[package]]
 name = "linux-syscall"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-linux-syscall.git?rev=7f86d96c#7f86d96c4c74b7e1f08cc3834e21fdc7953ef866"
+source = "git+https://github.com/kern-crates/zcore-linux-syscall.git?rev=06fb8490#06fb8490e9d45774d89031d5f69b412c5f0c3484"
 dependencies = [
  "bitflags 1.3.2",
  "bitvec",
@@ -2037,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "zcore-drivers"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-drivers.git?rev=5c3cdc08#5c3cdc088d65f5347b4378b6b74dc1b4eaff13aa"
+source = "git+https://github.com/kern-crates/zcore-drivers.git?rev=91c574e0#91c574e0c656b11cf61e6042d5f583ecde71dcd4"
 dependencies = [
  "acpi",
  "async-std",
@@ -2065,7 +2065,7 @@ dependencies = [
 [[package]]
 name = "zcore-loader"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-loader.git?rev=9fd8c1e8#9fd8c1e856f4013a2699c890090a1fa9f35abb23"
+source = "git+https://github.com/kern-crates/zcore-loader.git?rev=e9cfa35b#e9cfa35b5cc36bd56e253e8d4e65424d86fc48ed"
 dependencies = [
  "cfg-if 1.0.0",
  "executor",
@@ -2087,7 +2087,7 @@ checksum = "2fe21bcc34ca7fe6dd56cc2cb1261ea59d6b93620215aefb5ea6032265527784"
 [[package]]
 name = "zircon-object"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-zircon-object.git?rev=d8e23805#d8e23805311304ca0b93dd671348eedb8d2c35bf"
+source = "git+https://github.com/kern-crates/zcore-zircon-object.git?rev=178cc554#178cc554c02385b2f39e6678dc74ee675343419c"
 dependencies = [
  "bitflags 1.3.2",
  "cfg-if 1.0.0",
@@ -2106,7 +2106,7 @@ dependencies = [
 [[package]]
 name = "zircon-syscall"
 version = "0.1.0"
-source = "git+https://github.com/kern-crates/zcore-zircon-syscall.git?rev=131932aa#131932aa45f27fb68f855f05e76cb3dce108bea0"
+source = "git+https://github.com/kern-crates/zcore-zircon-syscall.git?rev=83907130#83907130c9bc7a2cfff3ea741397b959477f64a8"
 dependencies = [
  "bitflags 1.3.2",
  "cfg-if 1.0.0",
