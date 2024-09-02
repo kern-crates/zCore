@@ -131,6 +131,23 @@ make run LINUX=1 ARCH=aarch64 PLATFORM=qemu LOG=warn
   make run MODE=release USER=1 [LOG=warn] [GRAPHIC=on] [ACCEL=1]
   ```
 
+## List of zCore's modular crates
+
+| Name | Description | Authors | Repo URL |
+| :--: | :-- | :-- | :-- |
+|zcore |	zCore Reimplement Zircon microkernel in safe Rust as a userspace program! | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zCore |	
+|zcore-loader |	Linux and Zircon user programs loader and runner. | wangrunji0408@163.com equation618@gmail.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-loader |	
+|zcore-kernel-hal |	Kernel HAL interface definations. | wangrunji0408@163.com equation618@gmail.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-kernel-hal |
+|zcore-zircon-syscall |	Zircon syscalls implementation | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-zircon-syscall |
+|zcore-tests |	Test scripts for zCore OS. | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/kern-crates/zcore-tests |
+|zcore-rboot |	The x86_64 UEFI bootloader for zCore | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/kern-crates/rboot |
+|zcore-linux-syscall |	Linux syscalls implementation | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-linux-syscall |
+|zcore-drivers |	Device drivers of zCore | equation618@gmail.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-drivers |	
+|zcore-libc-test |	Test scripts for zCore OS. | Chenc@jia.je xiaoluoyuan@163.com | https://github.com/kern-crates/libc-test |
+|zcore-zircon-object | Zircon kernel objects | wangrunji0408@163.com panqinglin00@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-zircon-object |
+|zcore-linux-object |	Linux kernel objects | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-linux-object |
+|zcore-zircon-user |	User programs for zCore/Zircon | wangrunji0408@163.com xiaoluoyuan@163.com | https://github.com/kern-crates/zcore-zircon-user |
+
 ## Testing
 
 ### LibOS Mode Testing
